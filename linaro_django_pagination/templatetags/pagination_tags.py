@@ -41,14 +41,10 @@ from django.template import (
     loader,
 )
 
-try:
-    from django.template.base import TOKEN_BLOCK
-except ImportError:     # Django < 1.8
-    from django.template import TOKEN_BLOCK
-
+from django.template.base import TokenType
 from django.utils.text import unescape_string_literal
 
-from linaro_django_pagination import settings
+from .. import settings as pagination_settings
 
 
 def do_autopaginate(parser, token):
@@ -60,7 +56,7 @@ def do_autopaginate(parser, token):
         autopaginate QUERYSET [PAGINATE_BY] [ORPHANS] [as NAME]
     """
     # Check whether there are any other autopaginations are later in this template
-    expr = lambda obj: (obj.token_type == TOKEN_BLOCK and len(obj.split_contents()) > 0 and
+    expr = lambda obj: (obj.token_type == TokenType.BLOCK and len(obj.split_contents()) > 0 and
                         obj.split_contents()[0] == "autopaginate")
     multiple_paginations = len([tok for tok in parser.tokens if expr(tok)]) > 0
 
@@ -120,9 +116,9 @@ class AutoPaginateNode(Node):
     def __init__(self, queryset_var, multiple_paginations, paginate_by=None,
                  orphans=None, context_var=None):
         if paginate_by is None:
-            paginate_by = settings.DEFAULT_PAGINATION
+            paginate_by = django_settings.DEFAULT_PAGINATION
         if orphans is None:
-            orphans = settings.DEFAULT_ORPHANS
+            orphans = django_settings.DEFAULT_ORPHANS
         self.queryset_var = Variable(queryset_var)
         if isinstance(paginate_by, int):
             self.paginate_by = paginate_by
@@ -165,7 +161,7 @@ class AutoPaginateNode(Node):
         try:
             page_obj = paginator.page(request.page(page_suffix))
         except InvalidPage:
-            if settings.INVALID_PAGE_RAISES_404:
+            if django_settings.INVALID_PAGE_RAISES_404:
                 raise Http404('Invalid page requested.  If DEBUG were set to ' +
                               'False, an HTTP 404 page would have been shown instead.')
             context[key] = []
@@ -218,7 +214,7 @@ def do_paginate(parser, token):
     return PaginateNode(template)
 
 
-def paginate(context, window=settings.DEFAULT_WINDOW, margin=settings.DEFAULT_MARGIN):
+def paginate(context, window=django_settings.DEFAULT_WINDOW, margin=django_settings.DEFAULT_MARGIN):
     """
     Renders the ``pagination/pagination.html`` template, resulting in a
     Digg-like display of the available pages, given the current page.  If there
@@ -309,17 +305,17 @@ def paginate(context, window=settings.DEFAULT_WINDOW, margin=settings.DEFAULT_MA
         new_context = {
             'MEDIA_URL': django_settings.MEDIA_URL,
             'STATIC_URL': getattr(django_settings, "STATIC_URL", None),
-            'disable_link_for_first_page': settings.DISABLE_LINK_FOR_FIRST_PAGE,
-            'display_disabled_next_link': settings.DISPLAY_DISABLED_NEXT_LINK,
-            'display_disabled_previous_link': settings.DISPLAY_DISABLED_PREVIOUS_LINK,
-            'display_page_links': settings.DISPLAY_PAGE_LINKS,
+            'disable_link_for_first_page': django_settings.DISABLE_LINK_FOR_FIRST_PAGE,
+            'display_disabled_next_link': django_settings.DISPLAY_DISABLED_NEXT_LINK,
+            'display_disabled_previous_link': django_settings.DISPLAY_DISABLED_PREVIOUS_LINK,
+            'display_page_links': django_settings.DISPLAY_PAGE_LINKS,
             'is_paginated': paginator.count > paginator.per_page,
-            'next_link_decorator': settings.NEXT_LINK_DECORATOR,
+            'next_link_decorator': django_settings.NEXT_LINK_DECORATOR,
             'page_obj': page_obj,
             'page_suffix': page_suffix,
             'pages': pages,
             'paginator': paginator,
-            'previous_link_decorator': settings.PREVIOUS_LINK_DECORATOR,
+            'previous_link_decorator': django_settings.PREVIOUS_LINK_DECORATOR,
             'records': records,
         }
         if 'request' in context:

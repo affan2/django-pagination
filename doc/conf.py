@@ -47,7 +47,7 @@ copyright = u'2010-2011, Linaro Limited'
 #
 # The short X.Y version.
 import versiontools
-import linaro_django_pagination
+from .. import linaro_django_pagination
 version = "%d.%d" % linaro_django_pagination.__version__[0:2]
 # The full version, including alpha/beta/rc tags.
 release = versiontools.format_version(linaro_django_pagination.__version__)

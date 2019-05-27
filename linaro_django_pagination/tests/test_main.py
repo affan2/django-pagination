@@ -39,14 +39,12 @@ try:
 except ImportError:  # Django 1.2 compatible
     from django.test import TestCase as SimpleTestCase
 
-from linaro_django_pagination.paginator import InfinitePaginator, FinitePaginator, InfinitePage
+from .. import paginator, settings as pagination_settings, middleware
 from linaro_django_pagination.templatetags.pagination_tags import paginate
-from linaro_django_pagination.middleware import PaginationMiddleware, get_page
-from linaro_django_pagination import settings
 
 
 class HttpRequest(DjangoHttpRequest):
-    page = get_page
+    page = middleware.get_page
 
 
 @contextmanager
@@ -54,10 +52,10 @@ def override_app_setting(key, value):
     """
     Overrides application setting and restores it at the end
     """
-    restore_value = getattr(settings, key)
-    setattr(settings, key, value)
+    restore_value = getattr(pagination_settings, key)
+    setattr(pagination_settings, key, value)
     yield
-    setattr(settings, key, restore_value)
+    setattr(pagination_settings, key, restore_value)
 
 
 class CommonTestCase(SimpleTestCase):
@@ -405,11 +403,11 @@ class TemplateRenderingTestCase(SimpleTestCase):
 
 class InfinitePaginatorTestCase(SimpleTestCase):
     def setUp(self):
-        self.p = InfinitePaginator(range(20), 2, link_template='/bacon/page/%d')
+        self.p = paginator.InfinitePaginator(range(20), 2, link_template='/bacon/page/%d')
 
     def test_paginator_repr(self):
         self.assertEqual(
-            repr(InfinitePaginator),
+            repr(paginator.InfinitePaginator),
             "<class 'linaro_django_pagination.paginator.InfinitePaginator'>",
         )
 
@@ -471,7 +469,7 @@ class InfinitePaginatorTestCase(SimpleTestCase):
         self.assertRaises(NotImplementedError, getattr, self.p, 'page_range')
 
     def test_paginator_with_allowed_empty_first_page(self):
-        p = InfinitePaginator([], 1, allow_empty_first_page=True)
+        p = paginator.InfinitePaginator([], 1, allow_empty_first_page=True)
         self.assertRaises(EmptyPage, p.page, -2)
         self.assertRaises(EmptyPage, p.page, -1)
         self.assertRaises(EmptyPage, p.page, 0)
@@ -481,11 +479,11 @@ class InfinitePaginatorTestCase(SimpleTestCase):
 
 class FinitePaginatorTestCase(SimpleTestCase):
     def setUp(self):
-        self.p = FinitePaginator(range(20), 2, offset=10, link_template='/bacon/page/%d')
+        self.p = paginator.FinitePaginator(range(20), 2, offset=10, link_template='/bacon/page/%d')
 
     def test_repr(self):
         self.assertEqual(
-            repr(FinitePaginator),
+            repr(paginator.FinitePaginator),
             "<class 'linaro_django_pagination.paginator.FinitePaginator'>"
         )
 
@@ -532,7 +530,7 @@ class FinitePaginatorTestCase(SimpleTestCase):
         self.assertIsNone(self.p.page(1).previous_link())
 
     def test_validate_number_with_allowed_empty_first_page(self):
-        p = FinitePaginator([], 1, allow_empty_first_page=True)
+        p = paginator.FinitePaginator([], 1, allow_empty_first_page=True)
         self.assertRaises(EmptyPage, p.validate_number, -2)
         self.assertRaises(EmptyPage, p.validate_number, -1)
         self.assertRaises(EmptyPage, p.validate_number, 0)
@@ -545,14 +543,14 @@ class MiddlewareTestCase(SimpleTestCase):
     Test middleware
     """
     def setUp(self):
-        self.middleware = PaginationMiddleware()
+        self.middleware = middleware.PaginationMiddleware()
         self.request = DjangoHttpRequest()
 
-    def test_get_page_default(self):
+    def get_page_default(self):
         self.middleware.process_request(self.request)
         self.assertEqual(self.request.page(''), 1)
 
-    def test_get_page(self):
+    def get_page(self):
         self.request.GET = QueryDict('page=2')
 
         self.middleware.process_request(self.request)
@@ -563,7 +561,7 @@ class MiddlewareTestCase(SimpleTestCase):
         self.middleware.process_request(self.request)
         self.assertEqual(self.request.page(''), 3)
 
-    def test_get_page_suffix(self):
+    def get_page_suffix(self):
         self.request.GET = QueryDict('page_suffix1=4')
         self.middleware.process_request(self.request)
         self.assertEqual(self.request.page('_suffix1'), 4)
