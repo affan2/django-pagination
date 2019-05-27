@@ -29,8 +29,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import os
 from setuptools import setup, find_packages
 
+os.environ['DJANGO_SETTINGS_MODULE'] = 'linaro_django_pagination.tests.settings'
 
 setup(
     name='linaro-django-pagination',
@@ -39,10 +41,10 @@ setup(
     author='Zygmunt Krynicki',
     author_email='zygmunt.krynicki@linaro.org',
     description="linaro-django-pagination",
-    long_description=open("README").read(),
+    long_description=open("README.rst").read(),
     keywords='pagination,django',
     url='https://github.com/zyga/django-pagination',
-    test_suite='linaro_django_pagination.test_project.tests.run_tests',
+    test_suite="linaro_django_pagination.tests.runner.runtests",
     license='BSD',
     packages=find_packages(),
     classifiers=[
@@ -54,12 +56,8 @@ setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
-    ],
-    install_requires=[
-        'django >= 1.2',
-    ],
-    tests_require=[
-        'django-testproject >= 0.1',
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.3",
     ],
     setup_requires=[
         'versiontools >= 1.3.1'

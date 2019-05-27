@@ -1,6 +1,6 @@
 {% if is_paginated %}
 {% load i18n %}
-<div class="pagination">
+<div class="custom_pagination">
   {% block previouslink %}
   {% if page_obj.has_previous %}
   {% if disable_link_for_first_page and page_obj.previous_page_number == 1 %}
