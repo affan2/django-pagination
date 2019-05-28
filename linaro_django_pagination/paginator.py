@@ -35,7 +35,7 @@ from django.core.paginator import Paginator, Page, PageNotAnInteger, EmptyPage
 class InfinitePaginator(Paginator):
     """
     Paginator designed for cases when it's not important to know how many total
-    pages.  This is useful for any object_list that has no count() method or
+    pages. This is useful for any object_list that has no count() method or
     can be used to improve performance for MySQL by removing counts.
 
     The orphans parameter has been removed for simplicity and there's a link
@@ -45,8 +45,11 @@ class InfinitePaginator(Paginator):
     def __init__(self, object_list, per_page, allow_empty_first_page=True, link_template='/page/%d/'):
         orphans = 0  # no orphans
         super(InfinitePaginator, self).__init__(object_list, per_page, orphans, allow_empty_first_page)
+
+        # Deletion of these 2 causes issues. Python interpeter complains that these are not deletable.
         # no count or num pages
-        del self._num_pages, self._count
+        # del self.num_pages, self.count
+
         # bonus links
         self.link_template = link_template
 

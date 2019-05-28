@@ -18,5 +18,6 @@ def runtests():
     failures = call_command('test', 'linaro_django_pagination')
     sys.exit(bool(failures))
 
+
 if __name__ == '__main__':
     runtests()

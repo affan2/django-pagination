@@ -116,9 +116,9 @@ class AutoPaginateNode(Node):
     def __init__(self, queryset_var, multiple_paginations, paginate_by=None,
                  orphans=None, context_var=None):
         if paginate_by is None:
-            paginate_by = django_settings.DEFAULT_PAGINATION
+            paginate_by = pagination_settings.DEFAULT_PAGINATION
         if orphans is None:
-            orphans = django_settings.DEFAULT_ORPHANS
+            orphans = pagination_settings.DEFAULT_ORPHANS
         self.queryset_var = Variable(queryset_var)
         if isinstance(paginate_by, int):
             self.paginate_by = paginate_by
@@ -161,7 +161,7 @@ class AutoPaginateNode(Node):
         try:
             page_obj = paginator.page(request.page(page_suffix))
         except InvalidPage:
-            if django_settings.INVALID_PAGE_RAISES_404:
+            if pagination_settings.INVALID_PAGE_RAISES_404:
                 raise Http404('Invalid page requested.  If DEBUG were set to ' +
                               'False, an HTTP 404 page would have been shown instead.')
             context[key] = []
@@ -187,7 +187,7 @@ class PaginateNode(Node):
         new_context = paginate(context)
         if self.template:
             template_list.insert(0, self.template)
-        return loader.render_to_string(template_list, new_context, context_instance=context)
+        return loader.render_to_string(template_list, context=new_context)
 
 
 def do_paginate(parser, token):
@@ -214,7 +214,7 @@ def do_paginate(parser, token):
     return PaginateNode(template)
 
 
-def paginate(context, window=django_settings.DEFAULT_WINDOW, margin=django_settings.DEFAULT_MARGIN):
+def paginate(context, window=pagination_settings.DEFAULT_WINDOW, margin=pagination_settings.DEFAULT_MARGIN):
     """
     Renders the ``pagination/pagination.html`` template, resulting in a
     Digg-like display of the available pages, given the current page.  If there
@@ -278,7 +278,7 @@ def paginate(context, window=django_settings.DEFAULT_WINDOW, margin=django_setti
             window_end = paginator.num_pages
         pages = page_range[window_start:window_end]
 
-        # figure margin and add elipses
+        # figure margin and add ellipses
         if margin > 0:
             # figure margin
             tmp_pages = set(pages)
@@ -286,10 +286,9 @@ def paginate(context, window=django_settings.DEFAULT_WINDOW, margin=django_setti
             tmp_pages = tmp_pages.union(page_range[-margin:])
             tmp_pages = list(tmp_pages)
             tmp_pages.sort()
-            pages = []
-            pages.append(tmp_pages[0])
+            pages = [tmp_pages[0], ]
             for i in range(1, len(tmp_pages)):
-                # figure gap size => add elipses or fill in gap
+                # figure gap size => add ellipses or fill in gap
                 gap = tmp_pages[i] - tmp_pages[i - 1]
                 if gap >= 3:
                     pages.append(None)
@@ -305,19 +304,20 @@ def paginate(context, window=django_settings.DEFAULT_WINDOW, margin=django_setti
         new_context = {
             'MEDIA_URL': django_settings.MEDIA_URL,
             'STATIC_URL': getattr(django_settings, "STATIC_URL", None),
-            'disable_link_for_first_page': django_settings.DISABLE_LINK_FOR_FIRST_PAGE,
-            'display_disabled_next_link': django_settings.DISPLAY_DISABLED_NEXT_LINK,
-            'display_disabled_previous_link': django_settings.DISPLAY_DISABLED_PREVIOUS_LINK,
-            'display_page_links': django_settings.DISPLAY_PAGE_LINKS,
+            'disable_link_for_first_page': pagination_settings.DISABLE_LINK_FOR_FIRST_PAGE,
+            'display_disabled_next_link': pagination_settings.DISPLAY_DISABLED_NEXT_LINK,
+            'display_disabled_previous_link': pagination_settings.DISPLAY_DISABLED_PREVIOUS_LINK,
+            'display_page_links': pagination_settings.DISPLAY_PAGE_LINKS,
             'is_paginated': paginator.count > paginator.per_page,
-            'next_link_decorator': django_settings.NEXT_LINK_DECORATOR,
+            'next_link_decorator': pagination_settings.NEXT_LINK_DECORATOR,
             'page_obj': page_obj,
             'page_suffix': page_suffix,
             'pages': pages,
             'paginator': paginator,
-            'previous_link_decorator': django_settings.PREVIOUS_LINK_DECORATOR,
+            'previous_link_decorator': pagination_settings.PREVIOUS_LINK_DECORATOR,
             'records': records,
         }
+
         if 'request' in context:
             getvars = context['request'].GET.copy()
             if 'page%s' % page_suffix in getvars:
