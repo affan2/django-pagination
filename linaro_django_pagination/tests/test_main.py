@@ -283,19 +283,19 @@ class TemplateRenderingTestCase(SimpleTestCase):
         t = Template("{% load pagination_tags %}{% autopaginate var %}{% paginate %}")
         self.assertIn(
             '<div class="pagination">',
-            t.render(Context({'var': range(21), 'request': HttpRequest()})),
+            t.render(Context({'var': list(range(21)), 'request': HttpRequest()})),
         )
 
     def test_paginate_by_option(self):
         t = Template("{% load pagination_tags %}{% autopaginate var 20 %}{% paginate %}")
         self.assertIn(
             '<div class="pagination">',
-            t.render(Context({'var': range(21), 'request': HttpRequest()})),
+            t.render(Context({'var': list(range(21)), 'request': HttpRequest()})),
         )
 
     def test_paginate_by_as_variable_option(self):
         t = Template("{% load pagination_tags %}{% autopaginate var by %}{% paginate %}")
-        content = t.render(Context({'var': range(21), 'by': 20, 'request': HttpRequest()}))
+        content = t.render(Context({'var': list(range(21)), 'by': 20, 'request': HttpRequest()}))
         self.assertIn('<div class="pagination">', content)
         self.assertIn('<a href="?page=2"', content)
 
@@ -308,56 +308,56 @@ class TemplateRenderingTestCase(SimpleTestCase):
         """
         t = Template("{% load pagination_tags %}{% autopaginate var 10 3 as foo %}{{ foo|join:',' }}")
         request = HttpRequest()
-        items = range(23)
+        items = list(range(23))
 
         request.GET = QueryDict('page=1')
         content = t.render(Context({'var': items, 'request': request}))
         # the first page with 10 items -- 0..9
-        page_items = [str(x) for x in range(10)]
+        page_items = [str(x) for x in list(range(10))]
         self.assertEqual(content, ','.join(page_items))
 
         request.GET = QueryDict('page=2')
         content = t.render(Context({'var': items, 'request': request}))
         # the last page with 13 items -- 10..22
-        page_items = [str(x) for x in range(10, 23)]
+        page_items = [str(x) for x in list(range(10, 23))]
         self.assertEqual(content, ','.join(page_items))
 
     def test_variable_orphans_option(self):
         t = Template("{% load pagination_tags %}{% autopaginate var 10 orphans as foo %}{{ foo|join:',' }}")
         request = HttpRequest()
-        items = range(23)
+        items = list(range(23))
 
         request.GET = QueryDict('page=2')
         content = t.render(Context({'var': items, 'orphans': 3, 'request': request}))
         # the last page with 13 items -- 10..22
-        page_items = [str(x) for x in range(10, 23)]
+        page_items = [str(x) for x in list(range(10, 23))]
         self.assertEqual(content, ','.join(page_items))
 
     def test_as_option(self):
         t = Template("{% load pagination_tags %}{% autopaginate var by as foo %}{{ foo }}")
         self.assertEqual(
-            t.render(Context({'var': range(21), 'by': 20, 'request': HttpRequest()})),
+            t.render(Context({'var': list(range(21)), 'by': 20, 'request': HttpRequest()})),
             str(range(20)),
         )
 
     def test_multiple_pagination(self):
         t = Template("{% load pagination_tags %}{% autopaginate var2 by as foo2 %}{% paginate %}"
                      "{% autopaginate var by as foo %}{% paginate %}")
-        content = t.render(Context({'var': range(21), 'var2': range(50, 121), 'by': 20, 'request': HttpRequest()}))
+        content = t.render(Context({'var': list(range(21)), 'var2': list(range(50, 121)), 'by': 20, 'request': HttpRequest()}))
         self.assertIn('<div class="pagination">', content)
         self.assertIn('<a href="?page_var2=2"', content)
         self.assertIn('<a href="?page_var=2"', content)
 
     def test_require_request_context(self):
         t = Template("{% load pagination_tags %}{% autopaginate var 20 %}")
-        self.assertRaises(ImproperlyConfigured, t.render, Context({'var': range(21)}))
+        self.assertRaises(ImproperlyConfigured, t.render, Context({'var': list(range(21))}))
 
     def test_invalid_page(self):
         t = Template("{% load pagination_tags %}{% autopaginate var 10 as foo %}"
                      "{% if invalid_page %}INVALID_PAGE{% endif %}")
         request = HttpRequest()
         request.GET = QueryDict('page=42')
-        content = t.render(Context({'var': range(21), 'request': request}))
+        content = t.render(Context({'var': list(range(21)), 'request': request}))
         self.assertEqual(content, 'INVALID_PAGE')
 
     def test_invalid_page_raises_404(self):
@@ -365,7 +365,7 @@ class TemplateRenderingTestCase(SimpleTestCase):
             t = Template("{% load pagination_tags %}{% autopaginate var 10 %}")
             request = HttpRequest()
             request.GET = QueryDict('page=100')
-            self.assertRaises(Http404, t.render, Context({'var': range(21), 'request': request}))
+            self.assertRaises(Http404, t.render, Context({'var': list(range(21)), 'request': request}))
 
     def test_invalid_syntax(self):
         self.assertRaises(TemplateSyntaxError, Template, "{% load pagination_tags %}{% autopaginate %}")
@@ -377,14 +377,14 @@ class TemplateRenderingTestCase(SimpleTestCase):
     # This fails on line 381. No solution yet.
     # def test_paginate_custom_template(self):
     #     t = Template("{% load pagination_tags %}{% autopaginate var 20 %}{% paginate using 'custom_pagination.html' %}")
-    #     content = t.render(Context({'var': range(21), 'request': HttpRequest()}))
+    #     content = t.render(Context({'var': list(range(21)), 'request': HttpRequest()}))
     #     self.assertIn('<div class="custom_pagination">', content)
     #     self.assertIn('<a href="?page=2"', content)
 
     def test_paginate_custom_template_fallback(self):
         t = Template("{% load pagination_tags %}{% autopaginate var 20 %}"
                      "{% paginate using 'not_exists_template.html' %}")
-        content = t.render(Context({'var': range(21), 'request': HttpRequest()}))
+        content = t.render(Context({'var': list(range(21)), 'request': HttpRequest()}))
         self.assertIn('<div class="pagination">', content)
         self.assertIn('<a href="?page=2"', content)
 
@@ -393,7 +393,7 @@ class TemplateRenderingTestCase(SimpleTestCase):
 
         request = HttpRequest()
         request.GET = QueryDict('foo=bar&baz=qux&page=1')
-        content = t.render(Context({'var': range(21), 'request': request}))
+        content = t.render(Context({'var': list(range(21)), 'request': request}))
 
         self.assertIn('<div class="pagination">', content)
         self.assertTrue(

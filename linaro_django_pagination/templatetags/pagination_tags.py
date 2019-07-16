@@ -287,7 +287,7 @@ def paginate(context, window=pagination_settings.DEFAULT_WINDOW, margin=paginati
             tmp_pages = list(tmp_pages)
             tmp_pages.sort()
             pages = [tmp_pages[0], ]
-            for i in range(1, len(tmp_pages)):
+            for i in list(range(1, len(tmp_pages))):
                 # figure gap size => add ellipses or fill in gap
                 gap = tmp_pages[i] - tmp_pages[i - 1]
                 if gap >= 3:
