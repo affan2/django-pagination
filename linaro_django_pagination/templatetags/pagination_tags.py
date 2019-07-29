@@ -322,7 +322,7 @@ def paginate(context, window=pagination_settings.DEFAULT_WINDOW, margin=paginati
             getvars = context['request'].GET.copy()
             if 'page%s' % page_suffix in getvars:
                 del getvars['page%s' % page_suffix]
-            if len(getvars.keys()) > 0:
+            if len(list(getvars.keys())) > 0:
                 new_context['getvars'] = "&%s" % getvars.urlencode()
             else:
                 new_context['getvars'] = ''

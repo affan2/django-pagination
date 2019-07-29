@@ -149,8 +149,8 @@ class FinitePaginator(InfinitePaginator):
 
     To accurately determine if the next page exists, a FinitePaginator MUST be
     created with an object_list_plus that may contain more items than the
-    per_page count.  Typically, you'll have an object_list_plus with one extra
-    item (if there's a next page).  You'll also need to supply the offset from
+    per_page count.  Typically, yo'll have an object_list_plus with one extra
+    item (if there's a next page).  Yo'll also need to supply the offset from
     the full collection in order to get the page start_index.
 
     This is a very silly class but useful if you love the Django pagination

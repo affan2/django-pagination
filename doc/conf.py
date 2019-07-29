@@ -38,10 +38,10 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Linaro Django Pagination'
-copyright = u'2010-2011, Linaro Limited'
+project = 'Linaro Django Pagination'
+copyright = '2010-2011, Linaro Limited'
 
-# The version info for the project you're documenting, acts as replacement for
+# The version info for the project yo're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
@@ -175,8 +175,8 @@ htmlhelp_basename = 'LinaroDjangoPaginationDocumentation'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'LinaroDjangoPagination.tex', u'Linaro Django Pagination Documentation',
-   u'Zygmunt Krynicki', 'manual'),
+  ('index', 'LinaroDjangoPagination.tex', 'Linaro Django Pagination Documentation',
+   'Zygmunt Krynicki', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
