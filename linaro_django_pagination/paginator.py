@@ -27,7 +27,7 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+from abc import ABC
 
 from django.core.paginator import Paginator, Page, PageNotAnInteger, EmptyPage
 
@@ -139,7 +139,7 @@ class InfinitePage(Page):
         return None
 
 
-class FinitePaginator(InfinitePaginator):
+class FinitePaginator(InfinitePaginator, ABC):
     """
     Paginator for cases when the list of items is already finite.
 
