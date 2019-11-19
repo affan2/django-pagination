@@ -56,7 +56,7 @@ def do_autopaginate(parser, token):
         autopaginate QUERYSET [PAGINATE_BY] [ORPHANS] [as NAME]
     """
     # Check whether there are any other autopaginations are later in this template
-    expr = lambda obj: (obj.token_type == TokenType.BLOCK and len(obj.split_contents()) > 0 and
+    expr = lambda obj: (obj.token_type == TokenType.BLOCK.value and len(obj.split_contents()) > 0 and
                         obj.split_contents()[0] == "autopaginate")
     multiple_paginations = len([tok for tok in parser.tokens if expr(tok)]) > 0
 
